@@ -35,4 +35,8 @@ describe('Task1', () => {
         // the check is done inside beforeEach
         // blockchain and task1 are ready to use
     });
+
+    it('should find branch in tree', async () => {
+        //
+    });
 });
