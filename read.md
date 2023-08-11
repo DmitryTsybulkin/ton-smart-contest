@@ -2,4 +2,4 @@
 
 ### Run tests:
 
-- ```npx jest ...```
+- ```npx jest ./tests```
