@@ -32,7 +32,5 @@ describe('Task3', () => {
     });
 
     it('should deploy', async () => {
-        // the check is done inside beforeEach
-        // blockchain and task3 are ready to use
     });
 });
