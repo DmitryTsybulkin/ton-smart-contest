@@ -26,4 +26,9 @@ export class Task2 implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async sendMatrixMultiplier(provider: ContractProvider, ) {
+        const { stack } = await provider.get("matrix_multiplier", []);
+        return stack.readTuple();
+    }
 }

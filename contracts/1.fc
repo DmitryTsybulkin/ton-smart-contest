@@ -11,10 +11,28 @@
 
 ;; testable
 (cell) find_branch_by_hash(int hash, cell tree) method_id {
-;;   if (tree.slice_empty?()) {
-;;     return begin_cell().end_cell();
-;;   }
+  if (tree.cell_null?()) {
+    return begin_cell().end_cell();
+  }
+  slice cs = tree.begin_parse();
+  if (cs.slice_empty?()) {
+    return begin_cell().end_cell();
+  }
+  if (cs.slice_hash() == hash) {
+    return tree;
+  }
+  return find_cell_recursivly(hash, cs);
+}
 
-
+(cell) find_cell_recursivly(int hash, slice branch) method_id {
+  int depth = branch.slice_depth();
+  int i = 1;
+  while (i <= depth) {
+    cell br = branch~load_ref();
+    if (br.cell_hash() == hash) {
+      return br;
+    }
+    find_cell_recursivly(hash, br.begin_parse());
+  }
   return begin_cell().end_cell();
 }

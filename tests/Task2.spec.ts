@@ -35,4 +35,8 @@ describe('Task2', () => {
         // the check is done inside beforeEach
         // blockchain and task2 are ready to use
     });
+
+    it('should multiply matrix', async () => {
+
+    });
 });
