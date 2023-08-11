@@ -24,10 +24,6 @@ jobs:
         env:
           ENDPOINT_URL: "https://submissions.tonsmartchallenge4.com/tsc-4"  # Replace with your actual endpoint URL
         run: |
-          if [ -z ${{secrets.USER_TOKEN}} ]; then
-            echo "USER_TOKEN is undefined"
-          fi
-          
           response=$(curl -s -w "%{http_code}" --max-time 600 -X POST -H "Content-Type: multipart/form-data" -F "file=@code.zip" -F "token=${{secrets.USER_TOKEN}}" -F "github=${{github.repository_owner}}" $ENDPOINT_URL)
           status_code=${response: -3}
 
