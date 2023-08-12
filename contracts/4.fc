@@ -11,11 +11,13 @@
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
+  slice msg = text.begin_parse().skip_bits(32).load_bits(984);
+  ~strdump("try to encrypt");
   return begin_cell().end_cell();
 }
 
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
-  return begin_cell().end_cell();
+  return caesar_cipher_encrypt(- shift, text);
 }
 
