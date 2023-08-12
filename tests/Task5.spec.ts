@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano } from 'ton-core';
+import { Cell, toNano, TupleItemInt } from 'ton-core';
 import { Task5 } from '../wrappers/Task5';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -34,5 +34,32 @@ describe('Task5', () => {
     it('should deploy', async () => {
         // the check is done inside beforeEach
         // blockchain and task5 are ready to use
+    });
+
+    it('should calculate fibonacci', async () => {
+        const N = 201;
+        const K = 4;
+
+        let fibonacciSeq: bigint[] = [0n, 1n];
+        for (let i = 2; i < N + K; i++) {
+            let nextTerm = fibonacciSeq[i - 1] + fibonacciSeq[i - 2];
+            fibonacciSeq.push(nextTerm);
+        }
+        const testResult: bigint[] = fibonacciSeq.slice(N, N+K);
+
+        const { result } = await task5.sendCalcFibonacciSequence({
+            N: BigInt(N),
+            K: BigInt(K)
+        });
+        console.log(`Gas used: ${result.gas}`);
+
+        let sequence = [];
+        while (result.sequence.remaining != 0) {
+            const v = result.sequence.pop() as TupleItemInt;
+            sequence.push(v.value);
+        }
+
+        expect(sequence).toEqual(testResult);
+        console.log("Fibonacci equals");
     });
 });
