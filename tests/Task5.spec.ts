@@ -48,6 +48,13 @@ describe('Task5', () => {
         });
         console.log(`Gas used: ${result.result.gas}`);
         let arr = toJsArray(result.result.sequence);
+
+        const testArr = [
+            453973694165307953197296969697410619233826n,
+            734544867157818093234908902110449296423351n,
+            1188518561323126046432205871807859915657177n,
+            1923063428480944139667114773918309212080528n];
+        expect(arr).toEqual(testArr);
         expect(arr).toEqual(testResult);
 
         N = 1;
