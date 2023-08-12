@@ -21,18 +21,42 @@
   if (cs.slice_hash() == hash) {
     return tree;
   }
-  return find_cell_recursivly(hash, cs);
+  return find_cell(hash, tree);
 }
 
 (cell) find_cell_recursivly(int hash, slice branch) method_id {
-  int depth = branch.slice_depth();
-  int i = 1;
-  while (i <= depth) {
-    cell br = branch~load_ref();
-    if (br.cell_hash() == hash) {
-      return br;
+  int i = 0;
+  do {
+    cell subBranch = branch~load_ref();
+    ~strdump("Sub branch: hash");
+    if (subBranch.cell_hash() == hash) {
+      return subBranch;
     }
-    find_cell_recursivly(hash, br.begin_parse());
+    find_cell_recursivly(hash, subBranch.begin_parse());
+    i = i + 1;
+  } until (i < branch.slice_refs());
+  return begin_cell().end_cell();
+}
+
+forall X -> int is_null (X x) asm "ISNULL";
+forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
+forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
+forall X -> int is_slice (X x) asm "<{ TRY:<{ SBITS DROP -1 PUSHINT }>CATCH<{ 2DROP 0 PUSHINT }> }>CONT 1 1 CALLXARGS";
+
+(cell) find_cell(int hash, cell c) method_id {
+  tuple stack = null();
+  stack~push_back(c);
+  while (~ stack.is_null()) {
+    cell c1 = stack~pop_back();
+    slice s = c1.begin_parse();
+
+    if (s.slice_hash() == hash) {
+      return c1;
+    }
+
+    repeat (s.slice_refs()) {
+      stack~push_back(s~load_ref());
+    }
   }
   return begin_cell().end_cell();
 }

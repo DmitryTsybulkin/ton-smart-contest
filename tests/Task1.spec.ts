@@ -1,9 +1,8 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton-community/sandbox';
-import { Cell, toNano } from 'ton-core';
+import { beginCell, Cell, toNano } from 'ton-core';
 import { Task1 } from '../wrappers/Task1';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
-import { randomInt } from 'crypto';
 
 describe('Task1', () => {
     let code: Cell;
@@ -39,31 +38,34 @@ describe('Task1', () => {
     });
 
     it("should find hash", async () => {
-        const targetCell = new Cell().asBuilder().endCell();
-
+        const targetCell = beginCell()
+            .storeBit(true)
+            .endCell();
         const targetHash = bufferToInt(targetCell.hash());
-        const cell = new Cell().asBuilder()
-            .storeRef(targetCell)
+
+        const tree = beginCell()
+            .storeRef(beginCell()
+                .storeRef(
+                    beginCell().endCell()
+                )
+                .storeRef(
+                    beginCell()
+                        .storeRef(targetCell)
+                        .endCell()
+                )
+                .storeRef(
+                    beginCell().endCell()
+                )
+                .endCell()
+            )
             .endCell();
         const { result } = await task1.sendBranchByHash({
             hash: targetHash,
-            cell: cell
+            tree: tree
         });
-
-        expect(result.hash()).toEqual(targetCell.hash());
+        console.log(`Gas used: ${result.gas}`);
+        expect(result.cell.hash()).toEqual(targetCell.hash());
     });
-
-    function randomTree(depth: number, target: Cell) {
-        const head = new Cell().asBuilder();
-        for (let i = 0; i < depth; i++) {
-            let rand = randomInt(1, 4);
-            for (let j = 1; j < rand; j++) {
-                const targetCell = new Cell().asBuilder().endCell();
-            }
-
-        }
-        return head.endCell();
-    }
 
     function bufferToInt(buffer: Buffer) : bigint {
         let hash = BigInt(0);
