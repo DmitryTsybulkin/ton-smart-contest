@@ -3,6 +3,7 @@ import { Cell, toNano, TupleItem, TupleItemInt, TupleReader } from 'ton-core';
 import { Task5 } from '../wrappers/Task5';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
+import { randomInt } from 'crypto';
 
 describe('Task5', () => {
     let code: Cell;
@@ -37,38 +38,18 @@ describe('Task5', () => {
     });
 
     it('should calculate fibonacci', async () => {
-        let N = 201;
-        let K = 4;
+        const tests = [[0, 0], [0, 1], [1, 0], [100, 0], [0, 100], [1, 3], [201, 4]];
+        for (let value of tests) {
+            const testResult = jsFibonacci(value[0], value[1]);
 
-        let testResult = jsFibonacci(N, K);
-
-        let result = await task5.sendCalcFibonacciSequence({
-            N: BigInt(N),
-            K: BigInt(K)
-        });
-        console.log(`Gas used: ${result.result.gas}`);
-        let arr = toJsArray(result.result.sequence);
-
-        const testArr = [
-            453973694165307953197296969697410619233826n,
-            734544867157818093234908902110449296423351n,
-            1188518561323126046432205871807859915657177n,
-            1923063428480944139667114773918309212080528n];
-        expect(arr).toEqual(testArr);
-        expect(arr).toEqual(testResult);
-
-        N = 1;
-        K = 3;
-        testResult = jsFibonacci(N, K);
-        result = await task5.sendCalcFibonacciSequence({
-            N: BigInt(N),
-            K: BigInt(K)
-        });
-        console.log(`Gas used: ${result.result.gas}`);
-        arr = toJsArray(result.result.sequence);
-        expect(arr).toEqual(testResult);
-
-        console.log("Fibonacci equals");
+            let result = await task5.sendCalcFibonacciSequence({
+                N: BigInt(value[0]),
+                K: BigInt(value[1])
+            });
+            console.log(`Gas used: ${result.result.gas}`);
+            let arr = toJsArray(result.result.sequence);
+            expect(arr).toEqual(testResult);
+        }
     });
 
     function jsFibonacci(n: number, k: number) : bigint[] {

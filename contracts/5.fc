@@ -20,8 +20,14 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
 
 ;; testable
 (tuple) fibonacci_sequence (int n, int k) method_id {
+  if (k == 0) {
+    return empty_tuple();
+  }
   tuple sequence = to_tuple([0, 1]);
   int sum = n + k;
+  if (sum < 2) {
+    return to_tuple([0]);
+  }
   int i = 2;
   while (i < sum) {
     int nextTerm = sequence.at(i - 1) + sequence.at(i - 2);
