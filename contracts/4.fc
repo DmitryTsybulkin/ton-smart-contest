@@ -11,7 +11,7 @@
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-  slice msg = text.begin_parse().skip_bits(32).load_bits(984);
+;;   slice msg = ~text.begin_parse().skip_bits(32).load_bits(984);
   ~strdump("try to encrypt");
   return begin_cell().end_cell();
 }

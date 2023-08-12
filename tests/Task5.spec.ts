@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano, TupleItemInt } from 'ton-core';
+import { Cell, toNano, TupleItem, TupleItemInt, TupleReader } from 'ton-core';
 import { Task5 } from '../wrappers/Task5';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -37,29 +37,48 @@ describe('Task5', () => {
     });
 
     it('should calculate fibonacci', async () => {
-        const N = 201;
-        const K = 4;
+        let N = 201;
+        let K = 4;
 
-        let fibonacciSeq: bigint[] = [0n, 1n];
-        for (let i = 2; i < N + K; i++) {
-            let nextTerm = fibonacciSeq[i - 1] + fibonacciSeq[i - 2];
-            fibonacciSeq.push(nextTerm);
-        }
-        const testResult: bigint[] = fibonacciSeq.slice(N, N+K);
+        let testResult = jsFibonacci(N, K);
 
-        const { result } = await task5.sendCalcFibonacciSequence({
+        let result = await task5.sendCalcFibonacciSequence({
             N: BigInt(N),
             K: BigInt(K)
         });
-        console.log(`Gas used: ${result.gas}`);
+        console.log(`Gas used: ${result.result.gas}`);
+        let arr = toJsArray(result.result.sequence);
+        expect(arr).toEqual(testResult);
 
-        let sequence = [];
-        while (result.sequence.remaining != 0) {
-            const v = result.sequence.pop() as TupleItemInt;
-            sequence.push(v.value);
-        }
+        N = 1;
+        K = 3;
+        testResult = jsFibonacci(N, K);
+        result = await task5.sendCalcFibonacciSequence({
+            N: BigInt(N),
+            K: BigInt(K)
+        });
+        console.log(`Gas used: ${result.result.gas}`);
+        arr = toJsArray(result.result.sequence);
+        expect(arr).toEqual(testResult);
 
-        expect(sequence).toEqual(testResult);
         console.log("Fibonacci equals");
     });
+
+    function jsFibonacci(n: number, k: number) : bigint[] {
+        let fibonacciSeq: bigint[] = [0n, 1n];
+        for (let i = 2; i < n + k; i++) {
+            let nextTerm = fibonacciSeq[i - 1] + fibonacciSeq[i - 2];
+            fibonacciSeq.push(nextTerm);
+        }
+        return fibonacciSeq.slice(n, n+k);
+    }
+
+    function toJsArray(tuple: TupleReader) : bigint[] {
+        let arr = [];
+        while (tuple.remaining != 0) {
+            const v = tuple.pop() as TupleItemInt;
+            arr.push(v.value);
+        }
+        return arr;
+    }
 });
