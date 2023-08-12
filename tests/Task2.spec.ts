@@ -37,6 +37,62 @@ describe('Task2', () => {
     });
 
     it('should multiply matrix', async () => {
+        const matrixA = [
+            [1, 2],
+            [3, 4],
+            [5, 6]
+        ];
+        const matrixB = [
+            [7, 8, 9],
+            [10, 11, 12]
+        ];
 
+        const resultMatrix = multiplyMatrices(matrixA, matrixB);
+
+
+
+        const resultMatrix2 = multiplyMatrices([
+            [1, 2, 3, 4, 5, 6, 7],
+            [7, 6, 5, 4, 3, 2, 1]
+        ], [
+            [1, 2, 3, 4, 5],
+            [5, 4, 3, 2, 1],
+            [1, 2, 3, 4, 5],
+            [5, 4, 3, 2, 1],
+            [1, 2, 3, 4, 5],
+            [5, 4, 3, 2, 1],
+            [1, 2, 3, 4, 5]
+        ]);
+
+        for (const row of resultMatrix2) {
+            console.log(row.join(" "));
+        }
     });
 });
+
+function multiplyMatrices(matrixA: number[][], matrixB: number[][]) {
+    const numRowsA = matrixA.length;
+    const numColsA = matrixA[0].length;
+    const numRowsB = matrixB.length;
+    const numColsB = matrixB[0].length;
+
+    if (numColsA !== numRowsB) {
+        throw new Error("Invalid matrix dimensions for multiplication");
+    }
+
+    const resultMatrix = new Array(numRowsA)
+        .fill(0)
+        .map(() => new Array(numColsB).fill(0));
+    for (let i = 0; i < numRowsA; i++) {
+        for (let j = 0; j < numColsB; j++) {
+            let sum = 0;
+            for (let k = 0; k < numColsA; k++) {
+                sum += matrixA[i][k] * matrixB[k][j];
+            }
+            resultMatrix[i][j] = sum;
+        }
+    }
+
+    return resultMatrix;
+}
+
