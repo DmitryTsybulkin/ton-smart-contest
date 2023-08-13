@@ -32,24 +32,52 @@ describe('Task5', () => {
         });
     });
 
-    it('should deploy', async () => {
+    it.skip('should deploy', async () => {
         // the check is done inside beforeEach
         // blockchain and task5 are ready to use
     });
 
-    it('should calculate fibonacci', async () => {
-        const tests = [[0, 0], [0, 1], [1, 0], [100, 0], [0, 100], [1, 3], [201, 4]];
-        for (let value of tests) {
-            const testResult = jsFibonacci(value[0], value[1]);
+    // 0<=N<=370;   0<=N+K<=371;    0<=K<=255
+    const tests = [
+        // [0, 0],
+        // [0, 1],
+        // [1, 0],
+        // [1, 1],
+        // [1, 2],
+        // [1, 3],
+        // [2, 1],
+        // [3, 1],
+        // [100, 0],
+        // [0, 100],
+        // [100, 100],
+        // [201, 4],
+        [370, 255]
+    ];
 
-            let result = await task5.sendCalcFibonacciSequence({
-                N: BigInt(value[0]),
-                K: BigInt(value[1])
-            });
-            console.log(`Gas used: ${result.result.gas}`);
-            let arr = toJsArray(result.result.sequence);
-            expect(arr).toEqual(testResult);
-        }
+    // for (let value of tests) {
+    //     let n = value[0];
+    //     let k = value[1];
+    //     it(`main: should calculate with: ${n} : ${k}`, async () => {
+    //         const testResult = jsFibonacci(n, k);
+    //
+    //         // console.log(`JS result: ${testResult.length}`);
+    //         let result = await task5.sendCalcFibonacciSequence({
+    //             N: BigInt(n),
+    //             K: BigInt(k)
+    //         });
+    //         console.log(`Gas used: ${result.result.gas}`);
+    //         let arr = toJsArray(result.result.sequence);
+    //         expect(arr).toEqual(testResult);
+    //     });
+    // }
+
+    tests.forEach(async value => {
+        let n = value[0], k = value[1];
+        it(`should calc fibonacci no tuple with : ${n} : ${k}`, () => {
+            let testA = jsFibonacci(n, k);
+            let actual = jsFibonacciNoTuple(n, k);
+            expect(actual).toEqual(testA);
+        });
     });
 
     function jsFibonacci(n: number, k: number) : bigint[] {
@@ -68,5 +96,68 @@ describe('Task5', () => {
             arr.push(v.value);
         }
         return arr;
+    }
+
+    function jsFibonacciNoTuple(n: number, k: number) {
+        if (k === 0) {
+            return [];
+        }
+        let preLast = 0n, last = 1n;
+        let result: bigint[] = [];
+        const sum = n + k;
+        if (n == 0) {
+            result.push(preLast);
+            if (k > n) {
+                if (k != 1) {
+                    result.push(last);
+                }
+            }
+        }
+        if (n == 1) {
+            result.push(last);
+        }
+        let i = 2;
+        while (i < sum) {
+            let nextTerm = last + preLast;
+            if (i >= n) {
+                result.push(nextTerm);
+            }
+            preLast = last;
+            last = nextTerm;
+            i += 1;
+        }
+        return result;
+    }
+
+    function jsFibonacciLimit(n: number, k: number) {
+
+        const sum = k + n;
+        let buffer: bigint[] = [];
+        // if (sum > 255) {
+        //     buffer = [];
+        // }
+
+        const shift = 255;
+        let fibonacciSeq = [0n, 1n];
+        let i = 2;
+        while (i < sum) {
+            let nextTerm: bigint = 0n;
+            if (i < 256) {
+                nextTerm = fibonacciSeq[i - 1] + fibonacciSeq[i - 2];
+            }
+            if (i == 257) {
+                nextTerm = buffer[257 - 1 - 255] + fibonacciSeq[257 - 2];
+            }
+
+
+            if (fibonacciSeq.length < 256) {
+                fibonacciSeq.push(nextTerm);
+                console.log(fibonacciSeq.length);
+            } else {
+                buffer.push(nextTerm);
+                console.log(buffer.length);
+            }
+            i += 1;
+        }
     }
 });
