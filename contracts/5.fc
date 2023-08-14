@@ -56,5 +56,6 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     i += 1;
   }
 
+  ;; touch(result) -> push to top
   return result;
 }

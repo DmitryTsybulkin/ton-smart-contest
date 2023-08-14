@@ -13,6 +13,9 @@
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
   slice raw = text.begin_parse();
   raw~load_uint(32);
+  if (shift < 0) {
+    shift = 26 - (- shift % 26);
+  }
   return encode(begin_cell(), raw, shift);
 }
 
@@ -31,19 +34,24 @@
   }
 
   ifnot (node.slice_refs_empty?()) {
+;;     result.store_ref() just return builder here and use root as param (?)
     return encode(result, node~load_ref().begin_parse(), shift);
   }
   return result.end_cell();
 }
 
 (int) code_caesar(int char, int shift) method_id {
-  int ascii_offset = 0;
-  if ((char >= 65) | (char <= 90)) {
-    ascii_offset = 65;
+  int isUpper = ((char >= 65) & (char <= 90));
+  if isUpper | ((char >= 97) & (char <= 122)) {
+    int ascii_offset = 0;
+    if isUpper {
+      ascii_offset = 65;
+    } else {
+      ascii_offset = 97;
+    }
+    return (char - ascii_offset + shift) % 26 + ascii_offset;
   } else {
-    ascii_offset = 97;
+    return char;
   }
-  int crypted_char = (char - ascii_offset + shift) % 26 + ascii_offset;
-  return crypted_char;
 }
 
