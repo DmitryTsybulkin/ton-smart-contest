@@ -1,9 +1,8 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano, TupleItem, TupleItemInt, TupleReader } from 'ton-core';
+import { Cell, toNano, TupleItemInt, TupleReader } from 'ton-core';
 import { Task5 } from '../wrappers/Task5';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
-import { randomInt } from 'crypto';
 
 describe('Task5', () => {
     let code: Cell;
@@ -39,46 +38,46 @@ describe('Task5', () => {
 
     // 0<=N<=370;   0<=N+K<=371;    0<=K<=255
     const tests = [
-        // [0, 0],
-        // [0, 1],
-        // [1, 0],
-        // [1, 1],
-        // [1, 2],
-        // [1, 3],
-        // [2, 1],
-        // [3, 1],
-        // [100, 0],
-        // [0, 100],
-        // [100, 100],
-        // [201, 4],
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [2, 1],
+        [3, 1],
+        [100, 0],
+        [0, 100],
+        [100, 100],
+        [201, 4],
         [370, 255]
     ];
 
-    // for (let value of tests) {
-    //     let n = value[0];
-    //     let k = value[1];
-    //     it(`main: should calculate with: ${n} : ${k}`, async () => {
-    //         const testResult = jsFibonacci(n, k);
-    //
-    //         // console.log(`JS result: ${testResult.length}`);
-    //         let result = await task5.sendCalcFibonacciSequence({
-    //             N: BigInt(n),
-    //             K: BigInt(k)
-    //         });
-    //         console.log(`Gas used: ${result.result.gas}`);
-    //         let arr = toJsArray(result.result.sequence);
-    //         expect(arr).toEqual(testResult);
-    //     });
-    // }
+    for (let value of tests) {
+        let n = value[0];
+        let k = value[1];
+        it(`main: should calculate with: ${n} : ${k}`, async () => {
+            const testResult = jsFibonacci(n, k);
 
-    tests.forEach(async value => {
-        let n = value[0], k = value[1];
-        it(`should calc fibonacci no tuple with : ${n} : ${k}`, () => {
-            let testA = jsFibonacci(n, k);
-            let actual = jsFibonacciNoTuple(n, k);
-            expect(actual).toEqual(testA);
+            // console.log(`JS result: ${testResult.length}`);
+            let result = await task5.sendCalcFibonacciSequence({
+                N: BigInt(n),
+                K: BigInt(k)
+            });
+            console.log(`Gas used: ${result.result.gas}`);
+            let arr = toJsArray(result.result.sequence);
+            expect(arr).toEqual(testResult);
         });
-    });
+    }
+
+    // tests.forEach(async value => {
+    //     let n = value[0], k = value[1];
+    //     it(`should calc fibonacci no tuple with : ${n} : ${k}`, () => {
+    //         let testA = jsFibonacci(n, k);
+    //         let actual = jsFibonacciNoTuple(n, k);
+    //         expect(actual).toEqual(testA);
+    //     });
+    // });
 
     function jsFibonacci(n: number, k: number) : bigint[] {
         let fibonacciSeq: bigint[] = [0n, 1n];
