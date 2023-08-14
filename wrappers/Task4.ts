@@ -26,4 +26,24 @@ export class Task4 implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async sendCaesarCipherEncrypt(provider: ContractProvider, opts: {
+        shift: bigint,
+        text: Cell
+    }) {
+        const { stack, gasUsed } = await provider.get("caesar_cipher_encrypt", [
+            {
+                type: 'int',
+                value: opts.shift
+            },
+            {
+                type: 'cell',
+                cell: opts.text
+            }
+        ]);
+        return {
+            cell: stack.readCell(),
+            gas: gasUsed
+        }
+    }
 }

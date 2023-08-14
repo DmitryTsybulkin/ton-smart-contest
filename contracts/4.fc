@@ -11,13 +11,39 @@
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
-;;   slice msg = ~text.begin_parse().skip_bits(32).load_bits(984);
-  ~strdump("try to encrypt");
-  return begin_cell().end_cell();
+  slice raw = text.begin_parse();
+  raw~load_uint(32);
+  return encode(begin_cell(), raw, shift);
 }
 
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
   return caesar_cipher_encrypt(- shift, text);
+}
+
+(cell) encode(builder result, slice node, int shift) method_id {
+  int i = 0;
+  while (node.slice_bits()) {
+    int char = node~load_uint(8);
+    int newChar = code_caesar(char, shift);
+    result~store_uint(newChar, 8); ;; can throw error when get overflow
+    i += 8;
+  }
+
+  ifnot (node.slice_refs_empty?()) {
+    return encode(result, node~load_ref().begin_parse(), shift);
+  }
+  return result.end_cell();
+}
+
+(int) code_caesar(int char, int shift) method_id {
+  int ascii_offset = 0;
+  if ((char >= 65) | (char <= 90)) {
+    ascii_offset = 65;
+  } else {
+    ascii_offset = 97;
+  }
+  int crypted_char = (char - ascii_offset + shift) % 26 + ascii_offset;
+  return crypted_char;
 }
 
