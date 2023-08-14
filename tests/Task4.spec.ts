@@ -36,6 +36,21 @@ describe('Task4', () => {
         // blockchain and task4 are ready to use
     });
 
+    const testTexts: string[] = [
+        `aa bbb cA
+        very long string abc xyz very long string abc xyz very long string abc xyz very long string abc xyzvery long string abc xyz very long string abc xyz
+        qwertyuioip[]asdfgfhgjhkjl;l';zxcxvbnmn,./
+        !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~`,
+
+        "💩💩💩💩💩sdfsdfkjf2njfj498fgjh548fgh4g9jh98",
+
+        "f23m4ju9f3jf3u9dj3u8jhde4y82hdf7834gh3t8fgh4h3549f54bnh349hn39jf54nju9n",
+
+        "abcxyz",
+
+        "Hello, world"
+    ];
+
     it.skip('should check len', async () => {
         const shift: number = 3;
         const targetStr = "Hello, world";
@@ -48,13 +63,8 @@ describe('Task4', () => {
             text: text
         });
         console.log(`Gas used: ${result.gas}`);
-        let str = "";
-        const slice = result.cell.beginParse();
-        while (slice.remainingBits > 0) {
-            str += slice.loadUint(8);
-            str += ' ';
-        }
-        console.log(`Sizhu, ohuel: ${str} == ${asciiToUint(targetStr)}`);
+        const actual = cellToString(result.cell);
+        console.log(`Correct blya: ${actual} == ${asciiToUint(targetStr)}`);
     });
 
     it('should encrypt caesar code', () => {
@@ -64,20 +74,117 @@ describe('Task4', () => {
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
         expect(decryptedResult).toEqual(testStr);
     });
+
+    it('should encrypt and decrypt strong strongTestString3', () => {
+        const shift = 2;
+        const encryptedResult = caesarEncrypt(testTexts[0], shift);
+        const decryptedResult = caesarDecrypt(encryptedResult, shift);
+        expect(decryptedResult).toEqual(testTexts[0]);
+    });
+
+    it('should encrypt and decrypt strong string2', () => {
+        const shift = 2;
+        const encryptedResult = caesarEncrypt(testTexts[1], shift);
+        const decryptedResult = caesarDecrypt(encryptedResult, shift);
+        expect(decryptedResult).toEqual(testTexts[1]);
+    });
+
+    it('should encrypt and decrypt strong string1', () => {
+        const shift = 2;
+        const encryptedResult = caesarEncrypt(testTexts[2], shift);
+        const decryptedResult = caesarDecrypt(encryptedResult, shift);
+        expect(decryptedResult).toEqual(testTexts[2]);
+    });
+
+
+    const shift = 2;
+    for (let i = 0; i < testTexts.length; i++) {
+        it(`should encrypt smart contract for ${i}`, async () => {
+            const text = testTexts[i];
+            const cell: Cell = beginCell()
+                .storeUint(1, 32)
+                .storeStringTail(text)
+                .endCell();
+            let { result } = await task4.sendCaesarCipherEncrypt({
+                shift: BigInt(shift),
+                text: cell
+            });
+            console.log(`Gas used: ${result.gas}`);
+            const actual = cellToString(result.cell);
+            const expected = caesarEncrypt(text, shift);
+            expect(actual).toEqual(expected);
+        });
+    }
+
+    for (let i = 0; i < testTexts.length; i++) {
+        it(`should decrypt smart contract for ${i}`, async () => {
+            const text = testTexts[i];
+            const encoded = caesarEncrypt(text, shift);
+            const cell: Cell = beginCell()
+                .storeUint(1, 32)
+                .storeStringTail(encoded)
+                .endCell();
+            let { result } = await task4.sendCaesarCipherDecrypt({
+                shift: BigInt(shift),
+                text: cell
+            });
+            console.log(`Gas used: ${result.gas}`);
+            const actual = cellToString(result.cell);
+            expect(actual).toEqual(text);
+        });
+    }
+
+    const testText = 'abcxyz "da,132309865%@!#$^&*()./ efglkjzxcqwe_|\\~`<>';
+    for (let shift = 1; shift < 26; shift++) {
+        it(`should encrypt smart contract with shift: ${shift}`, async () => {
+            const cell: Cell = beginCell()
+                .storeUint(1, 32)
+                .storeStringTail(testText)
+                .endCell();
+            let { result } = await task4.sendCaesarCipherEncrypt({
+                shift: BigInt(shift),
+                text: cell
+            });
+            console.log(`Gas used: ${result.gas}`);
+            const expected = caesarEncrypt(testText, shift);
+            const actual = cellToString(result.cell);
+            expect(actual).toEqual(expected);
+        });
+
+        it(`should decrypt smart contract with shift: ${shift}`, async () => {
+            const encodedText = caesarEncrypt(testText, shift);
+            const cell: Cell = beginCell()
+                .storeUint(1, 32)
+                .storeStringTail(encodedText)
+                .endCell();
+            let { result } = await task4.sendCaesarCipherDecrypt({
+                shift: BigInt(shift),
+                text: cell
+            });
+            console.log(`Gas used: ${result.gas}`);
+            const expected = caesarDecrypt(encodedText, shift);
+            const actual = cellToString(result.cell);
+            expect(actual).toEqual(expected);
+        });
+    }
+
 });
 
 function caesarEncrypt(text: string, shift: number) : string {
+    if (shift < 0) {
+        shift = 26 - (-shift % 26);
+    }
     let result = "";
     for (const char of text) {
         const dec: number = char.charCodeAt(0);
-        let asciiOffset;
-        if (dec >= 65 || dec <= 90) {
-            asciiOffset = 65;
+        const isUpper = dec >= 65 && dec <= 90;
+        if (isUpper || (dec >= 97 && dec <= 122)) {
+            let asciiOffset = isUpper ? 65 : 97;
+            const crypt = (dec - asciiOffset + shift) % 26 + asciiOffset;
+            result += String.fromCharCode(crypt);
         } else {
-            asciiOffset = 97;
+            result += char;
         }
-        const crypt = (dec - asciiOffset + shift) % 26 + asciiOffset;
-        result += String.fromCharCode(crypt);
     }
     return result;
 }
@@ -93,4 +200,13 @@ function asciiToUint(str: string) : string {
         result += char.charCodeAt(0) + ' ';
     }
     return result;
+}
+
+function cellToString(cell: Cell) : string {
+    let txt = "";
+    const slice = cell.beginParse();
+    while (slice.remainingBits > 0) {
+        txt += String.fromCharCode(slice.loadUint(8));
+    }
+    return txt;
 }

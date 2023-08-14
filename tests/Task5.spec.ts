@@ -50,7 +50,7 @@ describe('Task5', () => {
         [0, 100],
         [100, 100],
         [201, 4],
-        [370, 255]
+        [370, 255] // pizda
     ];
 
     for (let value of tests) {
