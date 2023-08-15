@@ -25,18 +25,15 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     return empty_tuple();
   }
 
+  tuple result = to_tuple([]);
   int preLast = 0;
   int last = 1;
   int sum = n + k;
 
-  tuple result = to_tuple([]);
-
   if (n == 0) {
     result~tpush(preLast);
-    if (k > n) {
-      if (k != 1) {
-        result~tpush(last);
-      }
+    if ((k > n) & (k != 1)) {
+      result~tpush(last);
     }
   }
   if (n == 1) {
