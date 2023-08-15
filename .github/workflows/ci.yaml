@@ -96,7 +96,6 @@ jobs:
           # Extracting the 'minChallangePassed' value from the sanitized JSON response
           minChallengePassed=$(echo "$sanitized_response" | jq -r '.minChallangePassed')
           
-          echo "Min challenge passed: $sanitized_response"
           if [ "$minChallengePassed" == "true" ]; then
             echo "success=true" >> $GITHUB_ENV  # Set success to true using Environment Files
           else
