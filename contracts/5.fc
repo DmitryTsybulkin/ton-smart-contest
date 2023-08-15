@@ -48,7 +48,6 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     int nextTerm = last + preLast;
 
     if (i >= n) {
-      ~dump(nextTerm);
       result~tpush(nextTerm);
     }
     preLast = last;
@@ -56,6 +55,6 @@ forall X -> (tuple) to_tuple (X x) asm "NOP";
     i += 1;
   }
 
-  ;; touch(result) -> push to top
+  result~touch();
   return result;
 }
