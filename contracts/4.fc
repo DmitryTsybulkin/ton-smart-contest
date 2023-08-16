@@ -15,7 +15,7 @@ forall X -> int is_null (X x) asm "ISNULL";
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
   slice raw = text.begin_parse();
-  raw~skip_bits(32);
+;;   raw~skip_bits(32);
   if (shift < 0) {
     shift = 26 - (- shift % 26);
   }
