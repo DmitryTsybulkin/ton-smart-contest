@@ -10,7 +10,6 @@
 }
 
 forall X -> int is_null (X x) asm "ISNULL";
-(int) tlen (tuple t) asm "TLEN";
 forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
 forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 
@@ -25,27 +24,14 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   tuple result = encode(result, begin_cell(), raw, shift);
 
   cell root = null();
-;;   int i = result.tlen() - 1;
-;;   while (i != -1) {
-;;     if (cell_null?(root)) {
-;;       root = result.at(i).end_cell();
-;;     } else {
-;;       root = result.at(i)
-;;               .store_ref(root)
-;;               .end_cell();
-;;     }
-;;     i -= 1;
-;;   }
-  ~strdump("GOT HERE");
   while (~ result.is_null()) {
     if (cell_null?(root)) {
-      builder b = result~pop_back();
-      root = b.end_cell();
+      root = result~pop_back().end_cell();
     } else {
-      builder b = result~pop_back();
-      root = b.store_ref(root).end_cell();
+      root = result~pop_back().store_ref(root).end_cell();
     }
   }
+  root~touch();
   return root;
 }
 
