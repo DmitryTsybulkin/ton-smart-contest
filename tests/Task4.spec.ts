@@ -51,7 +51,7 @@ describe('Task4', () => {
         "Hello, world"
     ];
 
-    it.skip('should encrypt caesar code', () => {
+    it('should encrypt caesar code', () => {
         const testStr = "Hello, world";
         const shift = 2;
         const encryptedResult = caesarEncrypt(testStr, shift);
@@ -59,21 +59,21 @@ describe('Task4', () => {
         expect(decryptedResult).toEqual(testStr);
     });
 
-    it.skip('should encrypt and decrypt strong strongTestString3', () => {
+    it('should encrypt and decrypt strong strongTestString3', () => {
         const shift = 2;
         const encryptedResult = caesarEncrypt(testTexts[0], shift);
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
         expect(decryptedResult).toEqual(testTexts[0]);
     });
 
-    it.skip('should encrypt and decrypt strong string2', () => {
+    it('should encrypt and decrypt strong string2', () => {
         const shift = 2;
         const encryptedResult = caesarEncrypt(testTexts[1], shift);
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
         expect(decryptedResult).toEqual(testTexts[1]);
     });
 
-    it.skip('should encrypt and decrypt strong string1', () => {
+    it('should encrypt and decrypt strong string1', () => {
         const shift = 2;
         const encryptedResult = caesarEncrypt(testTexts[2], shift);
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
@@ -132,7 +132,7 @@ describe('Task4', () => {
             expect(actual).toEqual(expected);
         });
 
-        it.skip(`should decrypt smart contract with shift: ${shift}`, async () => {
+        it(`should decrypt smart contract with shift: ${shift}`, async () => {
             const encodedText = caesarEncrypt(testText, shift);
             const cell: Cell = beginCell()
                 .storeStringTail(encodedText)

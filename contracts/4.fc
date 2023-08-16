@@ -56,13 +56,11 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 (int) code_caesar(int char, int shift) method_id {
   int isUpper = ((char >= 65) & (char <= 90));
   if isUpper | ((char >= 97) & (char <= 122)) {
-    int ascii_offset = 0;
     if isUpper {
-      ascii_offset = 65;
+      return (char - 65 + shift) % 26 + 65;
     } else {
-      ascii_offset = 97;
+      return (char - 97 + shift) % 26 + 97;
     }
-    return (char - ascii_offset + shift) % 26 + ascii_offset;
   } else {
     return char;
   }
