@@ -9,35 +9,51 @@
 () recv_internal() {
 }
 
+forall X -> int is_null (X x) asm "ISNULL";
+(int) tlen (tuple t) asm "TLEN";
+
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
   slice raw = text.begin_parse();
-  raw~load_uint(32);
+  raw~skip_bits(32);
   if (shift < 0) {
     shift = 26 - (- shift % 26);
   }
-  return encode(begin_cell(), raw, shift);
+  tuple result = empty_tuple();
+
+  tuple result = encode(result, begin_cell(), raw, shift);
+
+  cell root = null();
+  int i = result.tlen() - 1;
+  while (i != -1) {
+    if (cell_null?(root)) {
+      root = result.at(i).end_cell();
+    } else {
+      root = result.at(i)
+              .store_ref(root)
+              .end_cell();
+    }
+    i -= 1;
+  }
+  return root;
+}
+
+(tuple) encode(tuple result, builder root, slice node, int shift) method_id {
+  while (node.slice_bits()) {
+    int char = node~load_uint(8);
+    int newChar = code_caesar(char, shift);
+    root~store_uint(newChar, 8);
+  }
+  result~tpush(root);
+  ifnot (node.slice_refs_empty?()) {
+    return encode(result, begin_cell(), node~load_ref().begin_parse(), shift);
+  }
+  return result;
 }
 
 ;; testable
 (cell) caesar_cipher_decrypt(int shift, cell text) method_id {
   return caesar_cipher_encrypt(- shift, text);
-}
-
-(cell) encode(builder result, slice node, int shift) method_id {
-  int i = 0;
-  while (node.slice_bits()) {
-    int char = node~load_uint(8);
-    int newChar = code_caesar(char, shift);
-    result~store_uint(newChar, 8); ;; can throw error when get overflow
-    i += 8;
-  }
-
-  ifnot (node.slice_refs_empty?()) {
-;;     result.store_ref() just return builder here and use root as param (?)
-    return encode(result, node~load_ref().begin_parse(), shift);
-  }
-  return result.end_cell();
 }
 
 (int) code_caesar(int char, int shift) method_id {
@@ -54,4 +70,3 @@
     return char;
   }
 }
-
