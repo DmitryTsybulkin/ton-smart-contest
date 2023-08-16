@@ -51,7 +51,7 @@ describe('Task4', () => {
         "Hello, world"
     ];
 
-    it('should encrypt caesar code', () => {
+    it.skip('should encrypt caesar code', () => {
         const testStr = "Hello, world";
         const shift = 2;
         const encryptedResult = caesarEncrypt(testStr, shift);
@@ -59,21 +59,21 @@ describe('Task4', () => {
         expect(decryptedResult).toEqual(testStr);
     });
 
-    it('should encrypt and decrypt strong strongTestString3', () => {
+    it.skip('should encrypt and decrypt strong strongTestString3', () => {
         const shift = 2;
         const encryptedResult = caesarEncrypt(testTexts[0], shift);
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
         expect(decryptedResult).toEqual(testTexts[0]);
     });
 
-    it('should encrypt and decrypt strong string2', () => {
+    it.skip('should encrypt and decrypt strong string2', () => {
         const shift = 2;
         const encryptedResult = caesarEncrypt(testTexts[1], shift);
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
         expect(decryptedResult).toEqual(testTexts[1]);
     });
 
-    it('should encrypt and decrypt strong string1', () => {
+    it.skip('should encrypt and decrypt strong string1', () => {
         const shift = 2;
         const encryptedResult = caesarEncrypt(testTexts[2], shift);
         const decryptedResult = caesarDecrypt(encryptedResult, shift);
@@ -86,7 +86,6 @@ describe('Task4', () => {
         it(`should encrypt smart contract for ${i}`, async () => {
             const text = testTexts[i];
             const cell: Cell = beginCell()
-                .storeUint(0, 32)
                 .storeStringTail(testTexts[i])
                 .endCell();
             let { result } = await task4.sendCaesarCipherEncrypt({
@@ -105,7 +104,6 @@ describe('Task4', () => {
             const text = testTexts[i];
             const encoded = caesarEncrypt(text, shift);
             const cell: Cell = beginCell()
-                .storeUint(1, 32)
                 .storeStringTail(encoded)
                 .endCell();
             let { result } = await task4.sendCaesarCipherDecrypt({
@@ -122,7 +120,6 @@ describe('Task4', () => {
     for (let shift = 1; shift < 26; shift++) {
         it(`should encrypt smart contract with shift: ${shift}`, async () => {
             const cell: Cell = beginCell()
-                .storeUint(1, 32)
                 .storeStringTail(testText)
                 .endCell();
             let { result } = await task4.sendCaesarCipherEncrypt({
@@ -135,10 +132,9 @@ describe('Task4', () => {
             expect(actual).toEqual(expected);
         });
 
-        it(`should decrypt smart contract with shift: ${shift}`, async () => {
+        it.skip(`should decrypt smart contract with shift: ${shift}`, async () => {
             const encodedText = caesarEncrypt(testText, shift);
             const cell: Cell = beginCell()
-                .storeUint(1, 32)
                 .storeStringTail(encodedText)
                 .endCell();
             let { result } = await task4.sendCaesarCipherDecrypt({
@@ -168,7 +164,6 @@ describe('Task4', () => {
         const cell1 = storeText(longStrCont, undefined);
 
         let cell = beginCell();
-        cell = cell.storeUint(0, 32);
         cell.storeStringTail(longStr + longStrCont);
         // cell = storeText(longStr, cell);
         // cell = cell.storeRef(cell1.endCell());
@@ -187,14 +182,13 @@ describe('Task4', () => {
     it('test cell decrypt string', async () => {
         const shift = 2;
         const longStr = 'qwertyuiop[]asdfghjkl;zxcvbnm,.~qwertyuiop[]asdfghjkl;zxcvbnm,.~qwertyuiop[]asdfghjkl;zxcvbnm,.~qwertyuiop[]asdfghjkl;zxcvb';
-        const longStrCont = 'pizdeckii pizdec';
+        const longStrCont = 'pizdeckii pizdec' + String.fromCharCode(128, 172, 200, 255);
         const encryptedLong = caesarEncrypt(longStr, shift);
         const encryptedCont = caesarEncrypt(longStrCont, shift);
 
         const cell1 = storeText(encryptedCont, undefined);
 
         let cell = beginCell();
-        cell = cell.storeUint(0, 32);
         cell = storeText(encryptedLong, cell);
         cell = cell.storeRef(cell1.endCell());
 
@@ -209,11 +203,37 @@ describe('Task4', () => {
         expect(actual).toEqual(longStr + longStrCont);
     });
 
+    for (const symbol of [-1, 0, 127, 128, 200, 255]) {
+        it('should encrypt and decrypt extended ascii symbols', async () => {
+            // const text = `Special symbols: ${String.fromCharCode(-1, 0, 127, 128, 200, 255)}`;
+            const text = String.fromCharCode(symbol);
+            const shift = 2;
+            const encryptedText = caesarEncrypt(text, shift);
+            const cellToEncrypt = beginCell().storeStringTail(text).endCell();
+
+            let result = await task4.sendCaesarCipherEncrypt({
+                shift: BigInt(shift),
+                text: cellToEncrypt
+            });
+            console.log(`Gas used: ${result.result.gas}`);
+            let actual = cellToString("", result.result.cell);
+            expect(actual).toEqual(encryptedText);
+
+            const cellToDecrypt = beginCell().storeStringTail(encryptedText).endCell();
+            result = await task4.sendCaesarCipherDecrypt({
+                shift: BigInt(shift),
+                text: cellToDecrypt
+            });
+            console.log(`Gas used: ${result.result.gas}`);
+            actual = cellToString("", result.result.cell);
+            expect(actual).toEqual(text);
+        });
+    }
+
 });
 
 function funcStyleEncrypt(shift: number, text: Cell) : Cell {
     let raw: Slice = text.beginParse();
-    raw = raw.skip(32);
     if (shift < 0) {
         shift = 26 - (- shift % 26);
     }

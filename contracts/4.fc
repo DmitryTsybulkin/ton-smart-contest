@@ -11,29 +11,40 @@
 
 forall X -> int is_null (X x) asm "ISNULL";
 (int) tlen (tuple t) asm "TLEN";
+forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
+forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 
 ;; testable
 (cell) caesar_cipher_encrypt(int shift, cell text) method_id {
   slice raw = text.begin_parse();
-;;   raw~skip_bits(32);
   if (shift < 0) {
     shift = 26 - (- shift % 26);
   }
-  tuple result = empty_tuple();
+  tuple result = null();
 
   tuple result = encode(result, begin_cell(), raw, shift);
 
   cell root = null();
-  int i = result.tlen() - 1;
-  while (i != -1) {
+;;   int i = result.tlen() - 1;
+;;   while (i != -1) {
+;;     if (cell_null?(root)) {
+;;       root = result.at(i).end_cell();
+;;     } else {
+;;       root = result.at(i)
+;;               .store_ref(root)
+;;               .end_cell();
+;;     }
+;;     i -= 1;
+;;   }
+  ~strdump("GOT HERE");
+  while (~ result.is_null()) {
     if (cell_null?(root)) {
-      root = result.at(i).end_cell();
+      builder b = result~pop_back();
+      root = b.end_cell();
     } else {
-      root = result.at(i)
-              .store_ref(root)
-              .end_cell();
+      builder b = result~pop_back();
+      root = b.store_ref(root).end_cell();
     }
-    i -= 1;
   }
   return root;
 }
@@ -44,7 +55,7 @@ forall X -> int is_null (X x) asm "ISNULL";
     int newChar = code_caesar(char, shift);
     root~store_uint(newChar, 8);
   }
-  result~tpush(root);
+  result~push_back(root);
   ifnot (node.slice_refs_empty?()) {
     return encode(result, begin_cell(), node~load_ref().begin_parse(), shift);
   }
