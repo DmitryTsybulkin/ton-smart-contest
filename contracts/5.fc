@@ -17,7 +17,6 @@
 }
 
 forall X -> (tuple) to_tuple (X x) asm "NOP";
-(int) tlen (tuple t) asm "TLEN";
 
 ;; testable
 (tuple) fibonacci_sequence (int n, int k) method_id {

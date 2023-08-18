@@ -49,8 +49,6 @@ describe('Task2', () => {
 
         const resultMatrix = multiplyMatrices(matrixA, matrixB);
 
-
-
         const resultMatrix2 = multiplyMatrices([
             [1, 2, 3, 4, 5, 6, 7],
             [7, 6, 5, 4, 3, 2, 1]
@@ -73,16 +71,16 @@ describe('Task2', () => {
 function multiplyMatrices(matrixA: number[][], matrixB: number[][]) {
     const numRowsA = matrixA.length;
     const numColsA = matrixA[0].length;
-    const numRowsB = matrixB.length;
     const numColsB = matrixB[0].length;
 
-    if (numColsA !== numRowsB) {
-        throw new Error("Invalid matrix dimensions for multiplication");
+    const resultMatrix: number[][] = [];
+    for (let i = 0; i < numRowsA; i++) {
+        resultMatrix.push([0]);
+        for (let j = 0; j < numColsB; j++) {
+            resultMatrix[i][j] = 0;
+        }
     }
 
-    const resultMatrix = new Array(numRowsA)
-        .fill(0)
-        .map(() => new Array(numColsB).fill(0));
     for (let i = 0; i < numRowsA; i++) {
         for (let j = 0; j < numColsB; j++) {
             let sum = 0;

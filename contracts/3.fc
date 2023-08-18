@@ -19,8 +19,37 @@
 () recv_internal() {
 }
 
+forall X -> int is_null (X x) asm "ISNULL";
+forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
+forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
+
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
+  tuple result = process_bits(linked_list.begin_parse(), null(), null(), flag, value);
   return begin_cell().end_cell();
+}
+
+(tuple) process_bits(slice s, int bits, tuple result, int flag, int value) method_id {
+  while (s.slice_bits()) {
+    int bit = s~load_uint(1);
+    if (bits.is_null()) {
+      bits = bit;
+    } else {
+      ;; update bits
+
+      if (bits == flag) {
+        result~push_back(value);
+      }
+    }
+    ;;     s~load_bits(flag)
+    ;;     repeat (s.slice_refs()) {
+    ;;
+    ;;     }
+  }
+  if (s.slice_refs()) {
+    return process_bits(s~load_ref().begin_parse(), bits, result, flag, value);
+  }
+
+  return result;
 }
 

@@ -26,4 +26,27 @@ export class Task3 implements Contract {
             body: beginCell().endCell(),
         });
     }
+
+    async sendFindAndReplace(provider: ContractProvider, opts: {
+        flag: bigint, value: bigint, list: Cell
+    }) {
+        const { stack, gasUsed } = await provider.get('find_and_replace', [
+            {
+                type: 'int',
+                value: opts.flag
+            },
+            {
+                type: 'int',
+                value: opts.value
+            },
+            {
+                type: 'cell',
+                cell: opts.list
+            }
+        ]);
+        return {
+            cell: stack.readCell(),
+            gas: gasUsed
+        };
+    }
 }

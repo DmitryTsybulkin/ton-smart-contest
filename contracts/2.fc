@@ -12,8 +12,46 @@
 () recv_internal() {
 }
 
+(int) tlen (tuple t) asm "TLEN";
+forall X -> (tuple) to_tuple (X x) asm "NOP";
+forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
+
 ;; testable
 (tuple) matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
-  return null();
+  int len_rows_a = matrixA.tlen();
+  int len_cols_a = matrixA.at(0).tlen();
+  int len_cols_b = matrixB.at(0).tlen();
+
+  tuple result = null();
+
+  int i = 0;
+  while (i < len_rows_a) {
+    result~tpush(to_tuple(0));
+    int j = 0;
+    while (j < len_cols_b) {
+      result.at(i).at(j) = 0;
+      j += 1;
+    }
+    i += 1;
+  }
+
+  int i = 0;
+  while (i < len_rows_a) {
+    int j = 0;
+    while () {
+      int sum = 0;
+      int k = 0;
+      while (k < len_cols_a) {
+        sum += matrixA.at(i).at(k) * matrixB.at(k).at(j);
+        k += 1;
+      }
+      result.at(i).at(j) = sum;
+      j += 1;
+    }
+    i += 1;
+  }
+
+  result~touch();
+  return result;
 }
 

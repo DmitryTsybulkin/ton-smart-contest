@@ -19,12 +19,12 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   stack~push_back(tree);
   while (~ stack.is_null()) {
     cell c1 = stack~pop_back();
-    slice s = c1.begin_parse();
 
-    if (s.slice_hash() == hash) {
+    if (c1.cell_hash() == hash) {
       return c1;
     }
 
+    slice s = c1.begin_parse();
     repeat (s.slice_refs()) {
       stack~push_back(s~load_ref());
     }
