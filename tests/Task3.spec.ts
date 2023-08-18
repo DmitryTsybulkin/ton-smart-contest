@@ -46,51 +46,38 @@ describe('Task3', () => {
             cell = cell.storeUint(text.charCodeAt(i), 8);
         }
 
-        // const { result } = await task3.sendFindAndReplace({
-        //     flag: BigInt(parseInt(flag, 2)),
-        //     value: BigInt(parseInt(value, 2)),
-        //     list: cell.endCell()
-        // });
-        // console.log(`Gas used: ${result.gas}`);
+        const { result } = await task3.sendFindAndReplace({
+            flag: flag,
+            value: value,
+            list: cell.endCell()
+        });
+        console.log(`Gas used: ${result.gas}`);
 
-        const result = findAndReplace(flag, value, cell.endCell());
+        // const result = findAndReplace(flag, value, cell.endCell());
 
-        const actual: string = cellToString('', result);
+        const actual: string = cellToString('', result.cell);
         const expected: string = 'Hello, entire World!';
         expect(actual).toEqual(expected);
     });
 
 });
 
-function processBits(slice: Slice, bits: bigint | null, result: TupleBuilder, flag: bigint, value: bigint): TupleBuilder {
+function loadBits(slice: Slice, result: number[]): number[] {
     while (slice.remainingBits) {
-        let bit: number = slice.loadUint(1);
-        if (bits === null) {
-            bits = BigInt(bit);
-        }
-
-        // bits must be the same length as flag
-
-        if (bits < flag) {
-
-        }
-
-        if (bits === flag) {
-            result.writeNumber(value);
-        } else {
-            result.writeNumber(/* first bit */);
-            bits = bits << 1n;
-        }
+        result.push(slice.loadUint(1));
     }
-
     if (slice.remainingRefs) {
-        return processBits(slice.loadRef().beginParse(), bits, result, flag, value);
+        return loadBits(slice.loadRef().beginParse(), result);
     }
     return result;
 }
 
 function findAndReplace(flag: bigint, value: bigint, linkedList: Cell): Cell {
-    const result: TupleBuilder = processBits(linkedList.beginParse(), null, new TupleBuilder(), flag, value);
+    const result: number[] = loadBits(linkedList.beginParse(), []);
+    let bits = 0;
+    for (let i = 0; i < result.length; i++) {
+        result[0]
+    }
     return beginCell().endCell();
 }
 
