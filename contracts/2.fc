@@ -13,8 +13,6 @@
 }
 
 (int) tlen (tuple t) asm "TLEN";
-forall X -> (tuple) to_tuple (X x) asm "NOP";
-forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
 
 ;; testable
 (tuple) matrix_multiplier(tuple matrixA, tuple matrixB) method_id {
