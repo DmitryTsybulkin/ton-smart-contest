@@ -21,6 +21,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
     cell c1 = stack~pop_back();
 
     if (c1.cell_hash() == hash) {
+      c1~touch();
       return c1;
     }
 

@@ -204,7 +204,7 @@ describe('Task4', () => {
     });
 
     for (const symbol of [0, 127]) {
-        it('should encrypt and decrypt extended ascii symbols', async () => {
+        it(`should encrypt and decrypt extended ascii symbols ${symbol}`, async () => {
             // const text = `Special symbols: ${String.fromCharCode(-1, 0, 127, 128, 200, 255)}`;
             const text = String.fromCharCode(symbol);
             const shift = 2;

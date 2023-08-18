@@ -45,6 +45,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   ifnot (node.slice_refs_empty?()) {
     return encode(result, begin_cell(), node~load_ref().begin_parse(), shift);
   }
+  result~touch();
   return result;
 }
 

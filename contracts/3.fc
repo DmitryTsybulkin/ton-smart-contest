@@ -23,15 +23,20 @@ forall X -> int is_null (X x) asm "ISNULL";
 forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
 forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 (int) ubitsize (int a) asm "BITSIZE";
+forall X -> (tuple) to_tuple (X x) asm "NOP";
+forall X -> (tuple, X) ~tpop (tuple t) asm "TPOP";
+(int) tlen (tuple t) asm "TLEN";
 
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
-  ~dump(ubitsize(flag));
+  var j = get_bit_length(flag);
+  ~dump(j);
 ;;   tuple result = process_bits(linked_list.begin_parse(), null(), null(), flag, value);
   return begin_cell().end_cell();
 }
 
 (tuple) process_bits(slice s, int bits, tuple result, int flag, int value) method_id {
+  tuple temp_bits = null();
   while (s.slice_bits()) {
     int bit = s~load_uint(1);
     if (bits.is_null()) {
@@ -55,3 +60,46 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   return result;
 }
 
+(int) get_bit_length(int bits) method_id {
+  int i = 0;
+  do {
+    bits~divmod(2);
+    i += 1;
+  } until (bits == 0);
+  return i;
+}
+
+(tuple) int_to_tuple(int bits) method_id {
+  tuple temp = empty_tuple();
+  do {
+    var i = bits~divmod(2);
+    temp~tpush(i);
+  } until (bits == 0);
+  tuple result = empty_tuple();
+  result~tpush(temp~tpop());
+  return result;
+}
+
+(int) equal_array?(tuple a, tuple b) method_id {
+  if (a.tlen() != b.tlen()) {
+    return 0;
+  }
+  int i = 0;
+  int result = 1;
+  while (i < a.tlen()) {
+    if (a.at(i) != b.at(i)) {
+      result = 0;
+    }
+    i += 1;
+  }
+  return result;
+}
+
+(tuple) slice_array(int start, int end, tuple array) method_id {
+  tuple result = empty_tuple();
+  while (start < end) {
+    result~tpush(array.at(start));
+    start += 1;
+  }
+  return result;
+}
